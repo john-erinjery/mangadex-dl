@@ -1,5 +1,5 @@
 '''
-manga-dl cli
+MangaDex-dl CLI
 
 This Command Line Client uses the ManagDex API to download manga
 and store it in image or PDF format.
@@ -39,6 +39,12 @@ def ret_float_or_int(num):
             return int(num.split('.')[0])
     else:
         return int(num)
+
+'''
+MangaDex-dl CLI manga downloader function
+
+This function serves as the core of the software
+'''
 def manga_downloader(manga_id:str, download_range:list, output=''):
     print('Title :', api.view_manga_by_id(manga_id=manga_id).title['en'])
     print('Getting chapters and volumes list...')

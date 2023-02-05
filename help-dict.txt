@@ -1,0 +1,52 @@
+{
+    'general,' : '''
+MangaDex-dl CLI, a manga download software powered by MangaDex API
+Usage : mangadex-dl [OPTION]
+
+Startup:
+    -h, --help              print this help message and exit
+    -V, --version           display the version of MangaDex-dl
+
+Download:
+    -t, --manga-url         the mangadex manga url (url is title page url)
+    -c, --chapter-url       the mangadex chapter url (url is chapter url) (currently unavailiable)
+    -r, --range             the range of chapters to download. (if manga url provided)
+    -pdf                    download manga as chapterwise pdfs (default)
+    -img                    download manga as chapterwise images
+
+Post-Download-Processing:
+    -m, --merge-pdf         merges all chapter pdfs into one file
+    -s, --single-folder     collect all images into a single folder
+
+for more information about an option,
+Run mangadex-dl --help <option>
+''',
+    '-h,--help' : '''
+MangaDex-dl CLI, a manga download software powered by MangaDex API
+Usage : mangadex-dl [OPTION]
+
+Startup:
+    -h, --help              print this help message and exit
+    -V, --version           display the version of MangaDex-dl
+
+Download:
+    -t, --manga-url         the mangadex manga url (url is title page url)
+    -c, --chapter-url       the mangadex chapter url (url is chapter url) (currently unavailiable)
+    -r, --range             the range of chapters to download. (if manga url provided)
+    -pdf                    download manga as chapterwise pdfs (default)
+    -img                    download manga as chapterwise images
+
+Post-Download-Processing:
+    -m, --merge-pdf         merges all chapter pdfs into one file
+    -s, --single-folder     collect all images into a single folder
+
+for more information about an option,
+Run mangadex-dl --help <option>
+''',
+    '-V,--version' : f'current version of MangaDex-dl is {VERSION}',
+    '-t,--manga-url' : '',
+    '-c,--chapter-url' : '',
+    '-r,--range' : '',
+    '-pdf' : '',
+    '-img' : ''
+}
