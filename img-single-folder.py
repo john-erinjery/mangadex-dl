@@ -18,49 +18,45 @@ def name_gen(lenght):
         n2 = 0
         n3 = 0
     return name_list
-# a
-# manga_dir_list = os.listdir('manga')
-# os.chdir('manga')
-# os.mkdir('imgs')
-# for i in manga_dir_list:
-#     for j in os.listdir(i):
-#         if j != 'pdf':
-#             os.rename(src=f'{i}/{j}', dst=f'imgs/{j}')
-# os.chdir('imgs')
-# order_of_chapters = []
-# for i in os.listdir('.'):
-#     order_of_chapters.append(ret_float_or_int(i))
-# order_of_chapters.sort()
-# n = 1
-# j = len(order_of_chapters)
-# x = 0
-# big_d = {}
-# length = 0
-# for i in order_of_chapters:
-#     l1 = []
-#     l = []
-#     ext = []
-#     for q in os.listdir(str(i)):
-#         l1.append(ret_float_or_int(q[:-4]))
-#         ext.append(q[-4:])
-#     hjt = l1
-#     l1.sort()
-#     for s in l1:
-#         index = hjt.index(s)
-#         e = ext[index]
-#         l.append(str(s) + e)
-#     big_d[i] = l
-#     length += len(l)
-
-# name_list = name_gen(length)
-# n = 0
-# for i in big_d:
-#     l = big_d[i]
-#     for j in l:
-#         os.rename(f'{i}/{j}', (name_list[n] + '.' + j.split('.')[1]))
-#         n += 1
-# for i in big_d:
-#     shutil.rmtree(str(i))
-os.chdir('manga/imgs')
+manga_dir_list = os.listdir('manga')
+os.chdir('manga')
+os.mkdir('imgs')
+for i in manga_dir_list:
+    for j in os.listdir(i):
+        if j != 'pdf':
+            os.rename(src=f'{i}/{j}', dst=f'imgs/{j}')
+os.chdir('imgs')
+order_of_chapters = []
 for i in os.listdir('.'):
-    os.rename(i, (i[:3] + '.' + i[3:]))
+    order_of_chapters.append(ret_float_or_int(i))
+order_of_chapters.sort()
+n = 1
+j = len(order_of_chapters)
+x = 0
+big_d = {}
+length = 0
+for i in order_of_chapters:
+    l1 = []
+    l = []
+    ext = []
+    for q in os.listdir(str(i)):
+        l1.append(ret_float_or_int(q[:-4]))
+        ext.append(q[-4:])
+    hjt = l1
+    l1.sort()
+    for s in l1:
+        index = hjt.index(s)
+        e = ext[index]
+        l.append(str(s) + e)
+    big_d[i] = l
+    length += len(l)
+
+name_list = name_gen(length)
+n = 0
+for i in big_d:
+    l = big_d[i]
+    for j in l:
+        os.rename(f'{i}/{j}', (name_list[n] + '.' + j.split('.')[1]))
+        n += 1
+for i in big_d:
+    shutil.rmtree(str(i))
