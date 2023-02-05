@@ -40,51 +40,71 @@ def ret_float_or_int(num):
     else:
         return int(num)
 
+def path_prettify(path:str):
+    new_path = path.replace('/', '\\')
+    return new_path
+
 '''
 MangaDex-dl CLI manga downloader function
 
 This function serves as the core of the software
 '''
-def manga_downloader(manga_id:str, download_range:list, output=''):
-    print('Title :', api.view_manga_by_id(manga_id=manga_id).title['en'])
-    print('Getting chapters and volumes list...')
-    mangadict = api.get_manga_volumes_and_chapters(manga_id=manga_id, translatedLanguage=['en'])
-    unsorted_chap_dict = {}
-    chap_dict = {}
-    rangee = download_range
-    d1 = {}
-    for i in mangadict.keys():
-        d1.update(mangadict[i]['chapters'])
-    for i in d1:
-        if ret_float_or_int(i) >= rangee[0] and ret_float_or_int(i) <= rangee[1]:
-            unsorted_chap_dict[ret_float_or_int(i)] = d1[i]['id']
-    for i in sorted(unsorted_chap_dict):
-        chap_dict[i] = unsorted_chap_dict[i]
-    ch_image = {}
-    for i in chap_dict:
-        r = requests.get(url='https://api.mangadex.org/at-home/server/' + chap_dict[i])
-        data = r.json()
-        ch_img_list = []
-        baseurl = data['baseUrl']
-        hash = data['chapter']['hash']
-        url = baseurl + '/data-saver/' + hash + '/'
-        for j in data['chapter']['dataSaver']:
-            ch_img_list.append(url + j)
-        ch_image[i] = ch_img_list
-    output_folder = os.getcwd() + output
-    folder_random_id = randint(10000, 99999)
-    folder_name = 'manga' + str(folder_random_id)
-    os.mkdir(output_folder + '/' + folder_name)
-    os.mkdir(output_folder + '/' + folder_name + '/' + 'pdf')
-    os.chdir(output_folder + '/' + folder_name)
-    print('Created root folder at ' + output_folder + '/' + folder_name)
-    try:
+
+def manga_downloader(args_dict):
+
+    manga_url = args_dict['manga_url']
+    chapter_url = args_dict['chapter_url']
+    range_ = args_dict['range']
+    pdf = args_dict['pdf']
+    img = args_dict['img']
+    merge = args_dict['merge']
+    single_folder = args_dict['single_folder']
+
+    if manga_url != None:
+        manga_id = manga_url.split('/')[-2]
+        print('Starting download of \'{}\''.format(api.view_manga_by_id(manga_id=manga_id).title['en']))
+        print('\ngetting chapters and volumes..')
+        mangadict = api.get_manga_volumes_and_chapters(manga_id=manga_id, translatedLanguage=['en'])
+
+        unsorted_chap_dict = {}
+        chap_dict = {}
+        d1 = {}
+        for i in mangadict.keys():
+            d1.update(mangadict[i]['chapters'])
+        for i in d1:
+            if ret_float_or_int(i) >= range_[0] and ret_float_or_int(i) <= range_[1]:
+                unsorted_chap_dict[ret_float_or_int(i)] = d1[i]['id']
+        for i in sorted(unsorted_chap_dict):
+            chap_dict[i] = unsorted_chap_dict[i]
+
+        ch_image = {}
+        for i in chap_dict:
+            r = requests.get(url='https://api.mangadex.org/at-home/server/' + chap_dict[i])
+            data = r.json()
+            ch_img_list = []
+            baseurl = data['baseUrl']
+            hash = data['chapter']['hash']
+            url = baseurl + '/data-saver/' + hash + '/'
+            for j in data['chapter']['dataSaver']:
+                ch_img_list.append(url + j)
+            ch_image[i] = ch_img_list
+
+        output_folder = os.getcwd() + ''
+        folder_random_id = randint(10000, 99999)
+        rel_folder_name = 'manga' + str(folder_random_id)
+        folder_name = path_prettify(output_folder + '/' + rel_folder_name)
+        os.mkdir(folder_name)
+        os.mkdir(folder_name + '\\' + 'pdf')
+        os.chdir(folder_name)
+        print('Created root folder at : ' + folder_name)
+
         for i in ch_image:
-            print('Starting Image conversion for Chapter {}'.format(i))
+            print('\ndownloading images for chapter {}..'.format(i))
             os.mkdir(str(i))
             n = 1
             image_list = []
             img_obj_list = []
+
             for j in ch_image[i]:
                 r = requests.get(j, stream=True)
                 with open((str(i) + '/' + str(n) + j[-4:]), 'wb') as f:
@@ -92,20 +112,29 @@ def manga_downloader(manga_id:str, download_range:list, output=''):
                     copyfileobj(r.raw, f)
                 image_list.append(str(i) + '/' + str(n) + j[-4:])
                 n += 1
-            try:
-                for k in image_list:
-                    img_obj_list.append(Image.open(str(k)).convert('RGB'))
-                print('Pdf Conversion and Merge appending underway on Chapter {}'.format(i))
-            except UnidentifiedImageError:
-                print(UnidentifiedImageError.errno, 'Unidentified Image Error : ', UnidentifiedImageError.strerror)
-            try:
-                img_obj_list[0].save(output_folder + '/' + folder_name + '/' + 'pdf/' + str(i) + '.pdf', save_all=True, append_images=img_obj_list[1:])
-            except UnidentifiedImageError:
-                print(UnidentifiedImageError.errno, 'Unidentified Image Error : ', UnidentifiedImageError.strerror)
-            merger.append(PdfReader(output_folder + '/' + folder_name + '/' + 'pdf/' + str(i) + '.pdf', 'rb'))
-    except UnidentifiedImageError:
-        print(UnidentifiedImageError.errno, 'Unidentified Image Error : ', UnidentifiedImageError.strerror)
-    merger.write('../Chapter {}-{}.pdf'.format(rangee[0], rangee[1]))
-    print('Successfully Saved Chapter {}-{}.pdf'.format(rangee[0], rangee[1]))
-    os.chdir(output_folder)
-    rmtree(folder_name)
+            if pdf:
+
+                try:
+                    for k in image_list:
+                        img_obj_list.append(Image.open(str(k)).convert('RGB'))
+                    print('converting chapter {} into pdf..'.format(i))
+                except UnidentifiedImageError:
+                    print(UnidentifiedImageError.errno, 'Unidentified Image Error : ', UnidentifiedImageError.strerror)
+
+                try:
+                    img_obj_list[0].save(folder_name + '/' + 'pdf/' + str(i) + '.pdf', save_all=True, append_images=img_obj_list[1:])
+                except UnidentifiedImageError:
+                    print(UnidentifiedImageError.errno, 'Unidentified Image Error : ', UnidentifiedImageError.strerror)
+                
+                if merge:
+                    merger.append(PdfReader(folder_name + '/' + 'pdf/' + str(i) + '.pdf', 'rb'))
+        
+        if merge:
+            print('\nmerging chapters {} to {}'.format(range_[0], range_[1]))
+            merger.write('../Chapter {}-{}.pdf'.format(range_[0], range_[1]))
+            print('merge complete')
+        os.chdir('..')
+        print('deleting ' + folder_name)
+        rmtree(folder_name)
+    else:
+        pass

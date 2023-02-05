@@ -46,6 +46,7 @@ def get_arguments(args):
     manga_url = None
     chapter_url = None
     range_ = []
+    range_1 = []
     pdf = True
     img = False
     merge = False
@@ -68,17 +69,19 @@ def get_arguments(args):
             elif i == '-c' or i == '--chapter-url':
                 chapter_url = obj_at_next_index(i, args)
             elif i == '-r' or i == '--range':
-                range_ = obj_at_next_index(i, args, 2)
+                range_1 = obj_at_next_index(i, args, 2)
+                for i in range_1:
+                    range_.append(ret_float_or_int(i))
             elif i == '-pdf':
                 continue
             elif i == '-img':
                 pdf = False
                 img = True
-            elif i == 'm' or i == '--merge-pdf':
+            elif i == '-m' or i == '--merge-pdf':
                 merge = True
-            elif i == 's' or i == '--single-folder':
+            elif i == '-s' or i == '--single-folder':
                 single_folder = True
-            elif i in range_:
+            elif i in range_1:
                 continue
             elif i == manga_url or i == chapter_url:
                 continue
@@ -134,4 +137,4 @@ def check_ok(arg_dict):
 arg_dict = get_arguments(args)
 
 if check_ok(arg_dict):
-    pass
+    manga_downloader(arg_dict)
