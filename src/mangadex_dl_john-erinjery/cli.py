@@ -1,7 +1,7 @@
 from sys import argv
 from manga import ret_float_or_int, manga_downloader
 args = argv
-VERSION = '1.0'
+__version__ = '1.0'
 
 # Loading the help dictionary
 with open('help-dict.txt') as f:
@@ -62,6 +62,9 @@ def get_arguments(args):
         else:
             print('ERROR: Invalid Syntax')
         return None
+    elif len(args) == 3 and (('--help' in args) or ('-h' in args)):
+        help(args[-1])
+        return None
     else:
         for i in args[1:]:
             if i == '-t' or i == '--manga-url':
@@ -72,6 +75,7 @@ def get_arguments(args):
                 range_1 = obj_at_next_index(i, args, 2)
                 for i in range_1:
                     range_.append(ret_float_or_int(i))
+                range_.sort()
             elif i == '-pdf':
                 continue
             elif i == '-img':
@@ -106,9 +110,11 @@ def check_ok(arg_dict):
     img = arg_dict['img']
     merge = arg_dict['merge']
     single_folder = arg_dict['single_folder']
-    
+    if chapter_url != None:
+        print('Chapter URLs are not supported currently.\nPlease use the manga url with both range values as the chapter number. eg (--range 12 12)')
+        return False
     if manga_url == chapter_url == None:
-        print('ERROR: manga url or chapter must be provided')
+        print('ERROR: manga or chapter url must be provided')
         return False
     elif manga_url != None and chapter_url != None:
         print('ERROR: both manga and chapter urls should not be provided')

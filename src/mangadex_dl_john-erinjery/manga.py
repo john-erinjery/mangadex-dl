@@ -174,6 +174,8 @@ def manga_downloader(args_dict):
                 over_lap = name_gen(total_imgs)
                 for i in range(total_imgs):
                     os.rename(all_images[i], ('../imgs/' + over_lap[i] + '-' + str(i + 1) + all_images[i][-4:] ))
+        else:
+            os.rename('pdf', '../pdf')
         if merge:
             print('\nmerging chapters {} to {}'.format(range_[0], range_[1]))
             merger.write('../Chapter {}-{}.pdf'.format(range_[0], range_[1]))
