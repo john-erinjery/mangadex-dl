@@ -30,7 +30,30 @@ from PyPDF2 import PdfMerger, PdfReader
 import requests
 api = mangadex.Api()
 merger = PdfMerger()
-
+abc = 'abcdefghijklmnopqrstuvwxyz'
+def make_sortable(stack):
+    lenght = len(stack)
+    prefixes = name_gen(lenght)
+    result_stack = []
+    for i in range(lenght):
+        result_stack.append(prefixes[i] + '-' + str(stack[i]))
+    return result_stack
+def name_gen(lenght):
+    n1 = 0
+    n2 = 0
+    n3 = 0
+    name_list = []
+    while n1 < 26:
+        while n2 < 26:
+            while (n3 < 26) and (len(name_list) < lenght):
+                name_list.append(abc[n1] + abc[n2] + abc[n3])
+                n3 += 1
+            n2 += 1
+            n3 = 0
+        n1 += 1
+        n2 = 0
+        n3 = 0
+    return name_list
 def ret_float_or_int(num):
     if '.' in num:
         if (num.split('.')[1] != '0') and (num.split('.')[1] != '00'):
@@ -94,10 +117,10 @@ def manga_downloader(args_dict):
         rel_folder_name = 'manga' + str(folder_random_id)
         folder_name = path_prettify(output_folder + '/' + rel_folder_name)
         os.mkdir(folder_name)
-        os.mkdir(folder_name + '\\' + 'pdf')
         os.chdir(folder_name)
         print('Created root folder at : ' + folder_name)
-
+        os.mkdir(folder_name + '\\' + 'pdf')
+        all_images = []
         for i in ch_image:
             print('\ndownloading images for chapter {}..'.format(i))
             os.mkdir(str(i))
@@ -112,8 +135,8 @@ def manga_downloader(args_dict):
                     copyfileobj(r.raw, f)
                 image_list.append(str(i) + '/' + str(n) + j[-4:])
                 n += 1
+            all_images.extend(image_list)
             if pdf:
-
                 try:
                     for k in image_list:
                         img_obj_list.append(Image.open(str(k)).convert('RGB'))
@@ -128,7 +151,29 @@ def manga_downloader(args_dict):
                 
                 if merge:
                     merger.append(PdfReader(folder_name + '/' + 'pdf/' + str(i) + '.pdf', 'rb'))
+            else:
+                pass
         
+        if not pdf:
+            if os.path.exists('pdf'):
+                rmtree('pdf')
+            os.mkdir('../imgs')
+            dir = os.listdir('.')
+            dir_ = []
+            for i in dir:
+                dir_.append(ret_float_or_int(i))
+            dir_.sort()
+            overlap = name_gen(len(dir))
+            print('organising image folders..')
+            if not single_folder:
+                for i in range(len(dir_)):
+                    os.rename(str(dir_[i]), ('../imgs/' + overlap[i] + '-' + str(dir_[i])))
+            else:
+                dir = os.listdir('.')
+                total_imgs = len(all_images)
+                over_lap = name_gen(total_imgs)
+                for i in range(total_imgs):
+                    os.rename(all_images[i], ('../imgs/' + over_lap[i] + '-' + str(i + 1) + all_images[i][-4:] ))
         if merge:
             print('\nmerging chapters {} to {}'.format(range_[0], range_[1]))
             merger.write('../Chapter {}-{}.pdf'.format(range_[0], range_[1]))
